@@ -1,21 +1,28 @@
 package main
 
 import (
-	"net/http"
 	"opconnect-backend/controllers"
+	"opconnect-backend/db/postgres"
+	"os"
 
+	"github.com/joho/godotenv"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func main() {
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
 
-	e.POST("/register",controllers.Registration)
-	e.POST("/login",controllers.Login)
+
+func main() {
+	godotenv.Load()
+	e := echo.New()
+	postgres.DBConnect()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.POST("/register", controllers.Registration)
+	e.POST("/login", controllers.Login)
+	g := e.Group("/api")
+	g.Use(echojwt.JWT([]byte(os.Getenv("JWT_SECRET"))))
+	
 	e.Logger.Fatal(e.Start(":1323"))
 }
