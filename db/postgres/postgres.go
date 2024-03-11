@@ -9,14 +9,18 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-
 var DB *pgxpool.Pool
 
-func DBConnect(){
+func DBConnect() {
 	fmt.Println(os.Getenv("DB_URL"))
 	var err error
-	DB,err = pgxpool.New(context.Background(),os.Getenv("DB_URL"))
-	if err!=nil{
-		log.Panicln("db connection error",err)
+	DB, err = pgxpool.New(context.Background(), os.Getenv("DB_URL"))
+	if err != nil {
+		log.Panicln("db connection error", err)
+		os.Exit(1)
 	}
-}  
+	err = DB.Ping(context.Background())
+	if err != nil {
+		log.Panicln("ping failed", err)
+	}
+}

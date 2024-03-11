@@ -9,14 +9,25 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/go-playground/validator"
 )
 
+type CustomValidator struct {
+	validator *validator.Validate
+}
 
+func (cv *CustomValidator) Validate(i interface{}) error {
+	if err:= cv.validator.Struct(i); err!=nil {
+		return err
+	}
+	return nil
+}
 
 func main() {
 	godotenv.Load()
-	e := echo.New()
 	postgres.DBConnect()
+	e := echo.New()
+	e.Validator = &CustomValidator{validator: validator.New()}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.POST("/register", controllers.Registration)

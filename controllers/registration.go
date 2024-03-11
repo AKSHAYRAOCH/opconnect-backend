@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"opconnect-backend/db/postgres"
 
@@ -11,26 +10,33 @@ import (
 )
 
 type User struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Confirm string `json:"confirmpassword"`
+	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+	Confirm  string `json:"confirmpassword" validate:"required"`
 }
 
 func Registration(c echo.Context) error {
-	Register := new(User)
-	
-	if err := c.Bind(&Register); err != nil {
-		return err
+	register := new(User)
+
+	if err := c.Bind(register); err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid json")
 	}
-	query:= `insert into Users (Id,Email,Password,Role) values (@Username,@Email,@Password,@Role)`
-	values:= pgx.NamedArgs{
-		"Username":Register.Username,
-		"Email":Register.Email,
-		"Password":Register.Password,
-		"Role":"Student"
+	if err := c.Validate(register); err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid body")
 	}
-	postgres.DB.Exec(context.Background(),)
-	
-	return c.String(http.StatusOK,"registered sucessfully")
+	query := `insert into Users (Id,Email,Password,Role) values (@Username,@Email,@Password,@Role)`
+	values := pgx.NamedArgs{
+		"Username": register.Username,
+		"Email":    register.Email,
+		"Password": register.Password,
+		"Role":     "Student",
+	}
+
+	_, err := postgres.DB.Exec(context.Background(), query, values)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusConflict, "account already exist's")
+	}
+
+	return c.String(http.StatusOK, "registered sucessfully")
 }
