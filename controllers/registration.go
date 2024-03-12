@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type User struct {
+type user struct {
 	Username string `json:"username" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
@@ -17,7 +17,7 @@ type User struct {
 }
 
 func Registration(c echo.Context) error {
-	register := new(User)
+	register := new(user)
 
 	if err := c.Bind(register); err != nil {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid json")

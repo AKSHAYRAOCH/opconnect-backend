@@ -5,11 +5,11 @@ import (
 	"opconnect-backend/db/postgres"
 	"os"
 
+	"github.com/go-playground/validator"
 	"github.com/joho/godotenv"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/go-playground/validator"
 )
 
 type CustomValidator struct {
@@ -17,7 +17,7 @@ type CustomValidator struct {
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
-	if err:= cv.validator.Struct(i); err!=nil {
+	if err := cv.validator.Struct(i); err != nil {
 		return err
 	}
 	return nil
@@ -34,6 +34,6 @@ func main() {
 	e.POST("/login", controllers.Login)
 	g := e.Group("/api")
 	g.Use(echojwt.JWT([]byte(os.Getenv("JWT_SECRET"))))
-	
+
 	e.Logger.Fatal(e.Start(":1323"))
 }
