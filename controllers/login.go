@@ -40,7 +40,7 @@ func Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	if user.Password!=loginrequest.Password{
+	if auth.ComparePassword(loginrequest.Password,user.Password){
 		return echo.NewHTTPError(http.StatusBadRequest,"incorrect email/password")
 	}
 	jwt,err:= auth.Generatejwt(user.Username,user.Role)

@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"opconnect-backend/auth"
 	"opconnect-backend/db/postgres"
 
 	"github.com/jackc/pgx/v5"
@@ -25,15 +26,20 @@ func Registration(c echo.Context) error {
 	if err := c.Validate(register); err != nil {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid body")
 	}
+
+	hashedpassword, err := auth.Hashpassword(register.Password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "unable to create account")
+	}
 	query := `insert into Users (Id,Email,Password,Role) values (@Username,@Email,@Password,@Role)`
 	values := pgx.NamedArgs{
 		"Username": register.Username,
 		"Email":    register.Email,
-		"Password": register.Password,
+		"Password": hashedpassword,
 		"Role":     "Student",
 	}
 
-	_, err := postgres.DB.Exec(context.Background(), query, values)
+	_, err = postgres.DB.Exec(context.Background(), query, values)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusConflict, "account already exist's")
 	}
