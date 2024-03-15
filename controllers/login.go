@@ -3,8 +3,9 @@ package controllers
 import (
 	"context"
 	"net/http"
-	"opconnect-backend/db/postgres"
 	"opconnect-backend/auth"
+	"opconnect-backend/db/postgres"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
@@ -40,12 +41,12 @@ func Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	if auth.ComparePassword(loginrequest.Password,user.Password){
-		return echo.NewHTTPError(http.StatusBadRequest,"incorrect email/password")
+	if auth.ComparePassword(loginrequest.Password, user.Password) {
+		return echo.NewHTTPError(http.StatusBadRequest, "incorrect email/password")
 	}
-	jwt,err:= auth.Generatejwt(user.Username,user.Role)
-	if err!=nil{
-		return echo.NewHTTPError(http.StatusInternalServerError,"unable to generate jwt")
+	jwt, err := auth.Generatejwt(user.Username, user.Role)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "unable to generate jwt")
 	}
-	return c.JSON(http.StatusOK,jwt)
+	return c.JSON(http.StatusOK, jwt)
 }

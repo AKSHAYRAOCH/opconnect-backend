@@ -12,7 +12,7 @@ func Generatejwt(userid, usertype string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": userid,
 		"usertype": usertype,
-		"iat": time.Now().Unix(),
+		"iat":      time.Now().Unix(),
 	}
 
 	jwt, err := generatewithwithclaims(claims)

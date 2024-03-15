@@ -35,5 +35,5 @@ func main() {
 	g := e.Group("/api")
 	g.Use(echojwt.JWT([]byte(os.Getenv("JWT_SECRET"))))
 
-	e.Logger.Fatal(e.Start(":"+os.Getenv("PORT")))
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
